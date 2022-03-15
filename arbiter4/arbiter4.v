@@ -5,7 +5,7 @@ module arbiter4(
 );
 
 always@(posedge clk) begin
-	if(!rst)
+	if(rst == 1'b1)
 		grant <= 4'b0000;
 	else begin
 		case(grant)
