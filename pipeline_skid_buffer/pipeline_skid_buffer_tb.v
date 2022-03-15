@@ -1,7 +1,3 @@
-//完成pipeline的改写
-//testbanche case改写
-//拼装
-
 module pipeline_tb;
 
 reg clock,reset;
