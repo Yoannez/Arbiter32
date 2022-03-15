@@ -25,4 +25,5 @@ module register
 			data_out <= RESET_VALUE; //can not use ternary operators here
 		end
 	end
+	
 endmodule
