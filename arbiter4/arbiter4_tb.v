@@ -1,35 +1,44 @@
 module arbiter4_tb;
 
-reg clk,rst;
-reg [3:0] req;
-wire [3:0] grant;
+reg clk;
+reg ready_in;
+reg [3:0] valid_in;
+reg [31:0] data_in;
+wire [3:0] ready_out;
+wire [7:0] data_out;
+wire valid_out;
 
-arbiter4 dut(
-	.clk	(clk),
-	.rst	(rst),
-	.req	(req),
-	.grant	(grant)
+arbiter4 #(.DW(8))
+dut(
+	.clk		(clk),
+	.ready_in	(ready_in),
+	.valid_in	(valid_in),
+	.data_in	(data_in),
+	.ready_out	(ready_out),
+	.valid_out	(valid_out),
+	.data_out	(data_out)
 );
 	
 
 initial begin: ClockGeneration
-	clk = 0;
+	clk = 1;
 	forever #50 clk = ~clk;
 end
 
 
 initial begin: signal
-	rst = 0;
-	req = 4'b0000;
+	ready_in = 1'b0;
+	valid_in = 4'b1111;
+	data_in  = 32'h87654321;
+	
 	#100
+	ready_in = 1'b1;
 	
-	rst = 1;
+	#400
+	ready_in = 1'b0;
+	
 	#100
-	
-	rst = 0;
-	
-	while(req != 4'b1111)
-		#100 req = req + 1'b1;
+	ready_in = 1'b1;
 		
 	
 
