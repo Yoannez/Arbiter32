@@ -41,15 +41,6 @@ initial begin: signal
 	
 	#100
 	ready_in = 1'b1;
-	
-	// ready_in = 1'b0;
-	// valid_in = 4'b0000;
-	// data_in = 32'h00000000;
-	
-	// #100
-	// ready_in = 1'b1;
-	// valid_in = 4'b0001;
-	// data_in = 32'h00000001;
 		
 	
 
