@@ -41,6 +41,9 @@ initial begin: signal
 	
 	#100
 	ready_in = 1'b1;
+
+	#100
+	valid_in = 1'b0;
 		
 	
 
