@@ -13,6 +13,38 @@ module arbiter_generic
 );
 	
 	localparam WIDTH = getWidth(bus_num);
+	localparam ARBITER_NUM = getArbiterNum(bus_num);
+
+	// These signals include all the signals in the module, including input and output signal
+	wire [WIDTH-1:0] valid;
+	wire [WIDTH-1:0] ready;
+	wire [DW*WIDTH-1:0] data;
+
+	generate
+		genvar i;
+		for (i=0; i<ARBITER_NUM; i=i+1) begin
+			arbiter4_pipeline #(.DW(DW))
+				arbiter_tree
+				(
+					.clk		(clk),
+					.rst		(rst),
+					.valid_in	(valid[4*(i+1)-1 -: 4]),
+					.data_in	(data[DW*4*(i+1)-1 -: 4*DW]),
+					.ready_out	(ready[4*(i+1)-1 -: 4]),
+					.valid_out	(valid[WIDTH-ARBITER_NUM+i]),
+					.data_out	(data[DW*(WIDTH-ARBITER_NUM+i+1)-1 -: DW]),
+					.ready_in	(ready[WIDTH-ARBITER_NUM+i])
+				);
+		end
+	endgenerate
+	
+	assign ready[WIDTH-1] = ready_in;
+	assign valid[bus_num-1:0] = valid_in;
+	assign data[bus_num*DW-1:0] = data_in;
+	assign ready_out = ready[bus_num-1:0];
+	assign valid_out = valid[WIDTH-1];
+	assign data_out = data[DW*WIDTH-1:DW*(WIDTH-1)];
+
 
 	// Calculate the width of signal valid, ready, data according to bus_num
 	function integer getWidth;
@@ -25,48 +57,18 @@ module arbiter_generic
 			end
 		end
 	endfunction
-	
-	// These signals include all the signals in the module, including input and output signal
-	wire [WIDTH-1:0] valid;
-	wire [WIDTH-1:0] ready;
-	wire [DW*WIDTH-1:0] data;
 
-	generate
-		genvar i,j;
-		integer us_bit = 0;
-		integer ds_bit = 0;
-		
-		for (j=bus_num; j>0; j=j/4) begin	// Control the number of arbiter for each level
-			always @(*) begin
-				us_bit = ds_bit;			// The bit point of upstream
-				ds_bit = us_bit + j;		// The bit point of downstream
-			end
-			
-			for (i=0; i<j/4; i=i+1) begin	// Generate arbiter according to j
-				arbiter4_pipeline #(.DW(DW))
-				arbiter_tree
-				(
-					.clk		(clk),
-					.rst		(rst),
-					.valid_in	(valid[us_bit+4*(i+1)-1 -: 4]),
-					.data_in	(data[DW*(us_bit+4*(i+1))-1 -: 4*DW]),
-					.ready_out	(ready[us_bit+4*(i+1)-1 -: 4]),
-					.valid_out	(valid[ds_bit+i]),
-					.data_out	(data[DW*(ds_bit+(i+1))-1 -: DW]),
-					.ready_in	(ready[ds_bit+i])
-				);
+	// Calculate the number of arbiter
+	function integer getArbiterNum;
+		input integer bus_num;
+		integer k;
+		begin
+			getArbiterNum = 0;
+			for (k=bus_num/4; k>0; k=k/4) begin
+				getArbiterNum = getArbiterNum + k;
 			end
 		end
+	endfunction
 
-	endgenerate
-	
-	
-	assign ready[WIDTH-1] = ready_in;
-	assign valid[bus_num-1:0] = valid_in;
-	assign data[bus_num*DW-1:0] = data_in;
-	assign ready_out = ready[bus_num-1:0];
-	assign valid_out = valid[WIDTH-1];
-	assign data_out = data[DW*WIDTH-1:DW*(WIDTH-1)];
-	
 endmodule
 				
