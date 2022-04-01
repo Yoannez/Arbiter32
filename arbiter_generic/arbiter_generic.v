@@ -24,17 +24,17 @@ module arbiter_generic
 		genvar i;
 		for (i=0; i<ARBITER_NUM; i=i+1) begin
 			arbiter4_pipeline #(.DW(DW))
-				arbiter_tree
-				(
-					.clk		(clk),
-					.rst		(rst),
-					.valid_in	(valid[4*(i+1)-1 -: 4]),
-					.data_in	(data[DW*4*(i+1)-1 -: 4*DW]),
-					.ready_out	(ready[4*(i+1)-1 -: 4]),
-					.valid_out	(valid[WIDTH-ARBITER_NUM+i]),
-					.data_out	(data[DW*(WIDTH-ARBITER_NUM+i+1)-1 -: DW]),
-					.ready_in	(ready[WIDTH-ARBITER_NUM+i])
-				);
+			arbiter_tree
+			(
+				.clk		(clk),
+				.rst		(rst),
+				.valid_in	(valid[4*(i+1)-1 -: 4]),
+				.data_in	(data[DW*4*(i+1)-1 -: 4*DW]),
+				.ready_out	(ready[4*(i+1)-1 -: 4]),
+				.valid_out	(valid[WIDTH-ARBITER_NUM+i]),
+				.data_out	(data[DW*(WIDTH-ARBITER_NUM+i+1)-1 -: DW]),
+				.ready_in	(ready[WIDTH-ARBITER_NUM+i])
+			);
 		end
 	endgenerate
 	
